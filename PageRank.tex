@@ -22,11 +22,22 @@
 \usepackage{multirow}
 \usepackage{url}
 \usepackage{color}
+\usepackage[intoc]{nomencl}
 \lstset{language=matlab,frame=single}
 \usepackage[framed,numbered,autolinebreaks,useliterate]{mcode}
 \setcounter{secnumdepth}{5}
 \setcounter{tocdepth}{4}
+\makenomenclature
+\renewcommand{\nomname}{List of Symbols and Abbreviations}
 
+\usepackage{ifthen}
+  \renewcommand{\nomgroup}[1]{%
+  \item[\bfseries
+  \ifthenelse{\equal{#1}{A}}{Abbreviations}{%
+  \ifthenelse{\equal{#1}{B}}{PageRank Notation}{%
+  \ifthenelse{\equal{#1}{C}}{HITS Notation}{%
+  \ifthenelse{\equal{#1}{D}}{SALSA Notation}{}}}}%
+  ]}
 
 
 \title{\textbf{PageRank and Random Walks on the Web}}
@@ -64,7 +75,40 @@ quotations and paraphrases suitably indicated.}
 
 \newpage
 \tableofcontents
-%\addcontentsline{toc}{chapter}{Contents}
+\mbox{}
+\nomenclature[01]{$r(P_i)$}{Rank of page \textit{i}}
+\nomenclature[02]{$\boldsymbol{\pi}$}{PageRank vector}
+ 
+\nomenclature[A,01]{PR}{PageRank}
+\nomenclature[A,02]{HITS}{Hypertext Induced Topic Search}
+\nomenclature[A,03]{SALSA}{Stochastic Approach to Linear Systems Analysis}
+\nomenclature[A,04]{TKC}{Tightly Knitted Community}
+\nomenclature[A,05]{WPR}{Weighted PageRank}
+
+\nomenclature[B,01]{\textbf{H}}{Hyperlink Matrix}
+\nomenclature[B,02]{\textbf{S}}{Stochastic Matrix}
+\nomenclature[B,03]{$1^T$}{Rank 1 matrix with unit entries of size [1x\textit{n}]}
+\nomenclature[B,04]{\textbf{a}}{Dangling node vector}
+\nomenclature[B,05]{\textbf{G}}{Google Matrix}
+\nomenclature[B,06]{$\alpha$}{Scaling parameter $\in$ [0,1]}
+\nomenclature[B,07]{$\textbf{v}^T$}{Personalization vector}
+
+\nomenclature[C,01]{\textbf{L}}{Adjacency Matrix}
+\nomenclature[C,02]{$\textbf{L}^T\textbf{L}$}{Authority Matrix}
+\nomenclature[C,03]{$\textbf{LL}^T$}{Hub Matrix}
+\nomenclature[C,04]{\textbf{x}}{Authority vector}
+\nomenclature[C,05]{\textbf{y}}{Hub vector}
+
+\nomenclature[D,01]{N}{Neighbourhood graph}
+\nomenclature[D,02]{G}{Bipartite undirected graph}
+\nomenclature[D,03]{$\textbf{L}_r$}{\textbf{L} with each non-zero row divided by row sum}
+\nomenclature[D,04]{$\textbf{L}_c$}{\textbf{L} with each non-zero column divided by column sum}
+\nomenclature[D,05]{\textbf{A}}{Authority Matrix}
+\nomenclature[D,06]{\textbf{H}}{Hub Matrix}
+\nomenclature[D,08]{$\boldsymbol{\pi}_h^T$}{Hub vector}
+\nomenclature[D,07]{$\boldsymbol{\pi}_a^T$}{Authority vector}
+
+\printnomenclature[5em]
 \listoffigures
 \begingroup
 \let\clearpage\relax
@@ -72,6 +116,7 @@ quotations and paraphrases suitably indicated.}
 \endgroup
 \addcontentsline{toc}{chapter}{List of Figures}
 \addcontentsline{toc}{chapter}{List of Tables}
+
 %--------------------Introduction
 
 \chapter{Introduction}
@@ -284,9 +329,15 @@ The power method is useful for solving the PageRank equation as it converges to 
 
 %--------------------Comparison to other methods of Ranking webpages
 \chapter{Other Methods of Ranking Web Pages}
-References: \cite{baldi2003modeling}, \cite{bharat1998improved}, \cite{bonato}, \cite{ding2003pagerank}, \cite{farahat2006authority}, \cite{kleinberg1999authoritative}, \cite{langville}, \cite{lempel2000stochastic}, \cite{manning}, \cite{ng2001link}, \cite{ng2001stable}
+
+Whilst PR is the most influential algorithm for ranking webpages, there are many other algorithms that are well known. In this chapter we will discuss two such algorithms, the HITS algorithm which also ranks webpages by popularity \cite{kleinberg1999authoritative}. However HITS differs as it produces two scores for each webpage. We will also discuss the SALSA algorithm, which incorporates ideas from both HITS and PR, as it assigns two scores to each web pages, but uses Markov theory as in PR. 
+
+
+References: \cite{baldi2003modeling}, \cite{bharat1998improved}, \cite{bonato}, \cite{ding2003pagerank}, \cite{farahat2006authority}, , \cite{langville}, \cite{lempel2000stochastic}, \cite{manning}, \cite{ng2001link}, \cite{ng2001stable}
 
 \section{HITS method}
+The Hypertext Induced Topic Search (HITS) algorithm was developed by Jon Kleinburg, and is similar to PR as it ranks web pages by popularity, however HITS produces two popularity scores, the authority score and the hub score, for each webpage. 
+
 \begin{equation}
 \textbf{L}=\left(
 \begin{array}{cccccccc}
@@ -499,7 +550,7 @@ Weighted PageRank algorithm differs from the standard algorithm by assigning mor
 W^{in}_{(j,i)} = \frac{I_i}{\sum_{k\in R(i)}I_k}
 \end{equation}
 where $I_i$ and $I_k$ represent the number of inlinks of pages \textit{i} and \textit{j} respectively, and $R(j)$ is the set of pages that \textit{j} links into. 
-Similarly $W^{out}_{(j,i)}$ is the weight of the link between pages \textit{i} and \textit{j}, and is calculated as
+Similarly $W^{out}_{(j,i)}$ is calculated as
 \begin{equation}\label{weightout}
 W^{out}_{(j,i)} = \frac{O_i}{\sum_{k\in R(i)}O_k}
 \end{equation}
@@ -582,8 +633,9 @@ when we compare the PageRankings produced by performing the standard algorithm a
  \end{tabular}
  \label{comparison}
 \end{table}
-\cite{langville}, \cite{xing2004weighted}, \cite{baeza2004web}
+\cite{langville}, , \cite{baeza2004web}
 
+The WPR algorithm has been shown as being able to identify a greater number of relevant pages when compared to the standard PR algorithm \cite{xing2004weighted}. We will also use the WPR algorithm later in this report in section \ref{sec:Roads}, in order to predict the human movement in an urban space. 
 
 \section{Personalization Vector}
 
@@ -626,8 +678,8 @@ We are able to assess changes to the Hydrogen bond network due to the solute thr
 %\section{Recommender Systems}
 
 %References:\cite{gori2007itemrank}
-\section{Roads and Urban Networks}
-We are able to apply the PageRank algorithm to road networks in order to predict traffic flow and also human movement. Jiang et al. found that weighted PageRank is the best metric with regards to correlating or predicting traffic flow \cite{1742-5468-2008-07-P07008}. A city can be topologically represented by a connectivity graph as shown in Figure \ref{city rep}, and as over 60\% of human movement can be predicted or explained using a connectivity graph \cite{doi:10.1080/13658810802022822}.
+\section{Roads and Urban Networks} \label{sec:Roads}
+We are able to apply the PageRank algorithm to road networks in order to predict traffic flow and also human movement. Jiang et al. found that Weighted PageRank, as discussed in Section \ref{sec:weighted} of this report, is the best metric with regards to correlating or predicting traffic flow \cite{1742-5468-2008-07-P07008}. A city can be topologically represented by a connectivity graph as shown in Figure \ref{city rep}, and as over 60\% of human movement can be predicted or explained using a connectivity graph \cite{doi:10.1080/13658810802022822}.
 
 \begin{figure}[h]
 \centering
@@ -768,71 +820,121 @@ In order to represent the road network in Durham, we first produce an axial map 
 %--------------------
 \chapter{Durham Results}
 \begin{figure} [H]  
-\begin{equation} \small
+\begin{equation*} \small
 \left(
 \begin{array}{ccccccccccccccccccccccccc}
-0 & \frac{1}{8} & 0 & \frac{1}{8} & \frac{1}{8} & \frac{1}{8} & 0 & 0 & 0  & 0  & 0  & \frac{1}{8} & 0  & \frac{1}{8} & \frac{1}{8} & 0  & 0  & 0  & \frac{1}{8} & 0  & 0  & 0  & 0 & 0  & 0\\
-\frac{1}{4} & 0  & \frac{1}{4} & 0  & \frac{1}{4} & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{4} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0 \\
-0  & 0  & 0  & 1    & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-\frac{1}{2}  & 0  & 0  & 0 & \frac{1}{2}   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & \frac{1}{2} & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{2} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-\frac{1}{3} & 0  & 0  & 0 & 0   & 0  & \frac{1}{3} & \frac{1}{3} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & \frac{1}{3} & 0  & \frac{1}{3} & 0  & 0  & 0  & 0  & \frac{1}{3} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & \frac{1}{7} & \frac{1}{7} & 0  & \frac{1}{7} & 0  & \frac{1}{7} & 0  & \frac{1}{7}  & 0 & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{7} & 0 & \frac{1}{7} & 0\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & \frac{1}{2} & 0  & \frac{1}{2} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & 0  & \frac{1}{2} & 0  & \frac{1}{2} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & \frac{1}{4} & 0  & \frac{1}{4} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{4} & 0 & \frac{1}{4} & 0\\
-1    & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & \frac{1}{4} & 0  & 0 & \frac{1}{4}     & 0  & \frac{1}{4}    & \frac{1}{4} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-\frac{1}{4} & \frac{1}{4} & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{4} & \frac{1}{4} & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-\frac{1}{2} & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{2} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{2} & \frac{1}{2} & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 1    & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0 & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 1    & 0  & 0  & 0  & 0 & 0  & 0\\
-\frac{1}{4}    & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{4} & 0  & \frac{1}{4} & \frac{1}{4}& 0  & 0\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{3} & 0  & \frac{1}{3} & 0  & 0 & 0  & \frac{1}{3}\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{2} & \frac{1}{2} & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & \frac{1}{5} & 0  & 0  & \frac{1}{5} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{5} & 0  & 0  & 0  & \frac{1}{5}& \frac{1}{5} & 0\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{4} & 0  & 0  & \frac{1}{4} & 0 & \frac{1}{4} & \frac{1}{4}\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & \frac{1}{5} & 0  & 0  & \frac{1}{5} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{5} & \frac{1}{5} & 0  & \frac{1}{5}\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{3} & 0  & 0  & \frac{1}{3} & \frac{1}{3} & 0\\
+0&\frac{1}{8}&0&\frac{1}{8}&\frac{1}{8}&\frac{1}{8}&0&0&0&0&0&\frac{1}{8}&0&\frac{1}{8}&\frac{1}{8}&0&0&0&\frac{1}{8}&0&0&0&0&0&0\\
+
+\frac{1}{4}&0&\frac{1}{4}&0&\frac{1}{4}&0&0&0&0&0&0&\frac{1}{4}&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+
+0&0&0&1&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+
+\frac{1}{2}&0&0&0&\frac{1}{2}&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+
+0&0&0&0&0&\frac{1}{2}&0&0&0&0&0&0&\frac{1}{2}&0&0&0&0&0&0&0&0&0&0&0&0\\
+
+\frac{1}{3}&0&0&0&0&0&\frac{1}{3}&\frac{1}{3}&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+
+0&0&0&0&0&\frac{1}{3}&0&\frac{1}{3}&0&0&0&0&\frac{1}{3}&0&0&0&0&0&0&0&0&0&0&0&0\\
+
+0&0&0&0&0&\frac{1}{7}&\frac{1}{7}&0&\frac{1}{7}&0&\frac{1}{7}&0&\frac{1}{7}&0&0&0&0&0&0&0&0&\frac{1}{7}&0&\frac{1}{7}&0\\
+
+0&0&0&0&0&0&0&\frac{1}{2}&0&\frac{1}{2}&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+
+0&0&0&0&0&0&0&0&\frac{1}{2}&0&\frac{1}{2}&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+
+0&0&0&0&0&0&0&\frac{1}{4}&0&\frac{1}{4}&0&0&0&0&0&0&0&0&0&0&0&\frac{1}{4}&0&\frac{1}{4}&0\\
+
+1&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+
+0&\frac{1}{4}&0&0&\frac{1}{4}&0&\frac{1}{4}&\frac{1}{4}&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+
+\frac{1}{4}&\frac{1}{4}&0&0&0&0&0&0&0&0&0&0&0&0&\frac{1}{4}&\frac{1}{4}&0&0&0&0&0&0&0&0&0\\
+
+\frac{1}{2}&0&0&0&0&0&0&0&0&0&0&0&0&\frac{1}{2}&0&0&0&0&0&0&0&0&0&0&0\\
+
+0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&\frac{1}{2}&\frac{1}{2}&0&0&0&0&0&0&0\\
+
+0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0&0\\
+
+0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0\\
+
+\frac{1}{4}&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&\frac{1}{4}&0&\frac{1}{4}&\frac{1}{4}&0&0\\
+
+0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&\frac{1}{3}&0&\frac{1}{3}&0&0&0&\frac{1}{3}\\
+
+0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&\frac{1}{2}&\frac{1}{2}&0&0&0&0&0\\
+
+0&0&0&0&0&0&0&\frac{1}{5}&0&0&\frac{1}{5}&0&0&0&0&0&0&0&\frac{1}{5}&0&0&0&\frac{1}{5}&\frac{1}{5}&0\\
+
+0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&\frac{1}{4}&0&0&\frac{1}{4}&0&\frac{1}{4}&\frac{1}{4}\\
+
+0&0&0&0&0&0&0&\frac{1}{5}&0&0&\frac{1}{5}&0&0&0&0&0&0&0&0&0&0&\frac{1}{5}&\frac{1}{5}&0&\frac{1}{5}\\
+
+0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&\frac{1}{3}&0&0&\frac{1}{3}&\frac{1}{3}&0\\
+
 \end{array}
 \right)
-\end{equation} 
+\end{equation*} 
 \caption{Hyperlink matrix for Durham}
 \end{figure}  \label{DH}
 \begin{figure} [H]  
-\begin{equation} \small
+\begin{equation*} \small
 \left(
 \begin{array}{ccccccccccccccccccccccccc}
-0 & \frac{2}{11} & 0 & \frac{1}{11} & \frac{1}{11} & \frac{3}{22} & 0 & 0 & 0  & 0  & 0  & \frac{1}{22} & 0  & \frac{2}{11} & \frac{2}{11} & 0  & 0  & 0  & \frac{2}{11} & 0  & 0  & 0  & 0 & 0  & 0\\
-\frac{2}{3} & 0  & \frac{1}{12} & 0  & \frac{1}{6} & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{12} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0 \\
-0  & 0  & 0  & 1    & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-\frac{4}{5}  & 0  & 0  & 0 & \frac{1}{5}   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & \frac{3}{7} & 0  & 0  & 0  & 0  & 0  & 0  & \frac{4}{7} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-\frac{4}{9} & 0  & 0  & 0 & 0   & 0  & \frac{1}{6} & \frac{7}{18} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & \frac{3}{14} & 0  & \frac{1}{2} & 0  & 0  & 0  & 0  & \frac{2}{7} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & \frac{3}{26} & \frac{3}{26} & 0  & \frac{1}{13} & 0  & \frac{2}{13} & 0  & \frac{2}{13}  & 0 & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{5}{26} & 0 & \frac{5}{26} & 0\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & \frac{7}{9} & 0  & \frac{2}{9} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & 0  & \frac{1}{3} & 0  & \frac{2}{3} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & \frac{7}{19} & 0  & \frac{2}{19} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{5}{19} & 0 & \frac{5}{19} & 0\\
-1    & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & \frac{1}{4} & 0  & 0 & \frac{1}{8} & 0  & \frac{3}{16} & \frac{7}{16} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-\frac{1}{2} & \frac{1}{4} & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{8} & \frac{1}{8} & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-\frac{2}{3} & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{3} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{2} & \frac{1}{2} & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 1    & 0  & 0  & 0  & 0  & 0  & 0  & 0 & 0  & 0\\
-0 & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 1    & 0  & 0  & 0  & 0 & 0  & 0\\
-\frac{2}{5}    & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{3}{20} & 0  & \frac{1}{4} & \frac{1}{5}& 0  & 0\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{4}{9} & 0& \frac{2}{9} & 0  & 0 & 0  & \frac{1}{3}\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{4}{7} & \frac{3}{7} & 0  & 0  & 0 & 0  & 0\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & \frac{7}{22} & 0  & 0  & \frac{2}{11} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{2}{11} & 0  & 0  & 0  & \frac{2}{11}& 0 & \frac{3}{22}\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{4}{17} & 0  & 0  & \frac{5}{17} & 0 & \frac{5}{17} & \frac{3}{17}\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & \frac{7}{23} & 0  & 0  & \frac{4}{23} & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{5}{23} & \frac{4}{23} & 0  & \frac{3}{23}\\
-0  & 0  & 0  & 0 & 0   & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & \frac{1}{4} & 0  & 0  & \frac{1}{3} & \frac{5}{12} & 0\\
+\frac{53}{92}&\frac{1}{42}&\frac{1}{84}&\frac{1}{42}&\frac{1}{53}&0&\frac{2}{63}&\frac{2}{27}&0&0&0&\frac{1}{84}&0&\frac{2}{63}&\frac{1}{84}&\frac{1}{84}&0&0&0&\frac{3}{70}&0&\frac{1}{14}&\frac{2}{35}&0&0\\
+
+\frac{1}{12}&\frac{4}{19}&0&\frac{1}{19}&\frac{8}{95}&\frac{7}{88}&\frac{3}{64}&\frac{7}{64}&0&0&0&\frac{1}{38}&0&\frac{7}{66}&\frac{2}{27}&\frac{1}{48}&0&0&\frac{7}{66}&0&0&0&0&0&0\\
+
+0&0&0&1&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+
+0&\frac{7}{44}&0&\frac{9}{44}&\frac{7}{88}&0&\frac{8}{67}&0&0&0&0&\frac{1}{25}&0&\frac{7}{44}&\frac{7}{88}&0&0&0&\frac{7}{44}&0&0&0&0&0&0\\
+
+\frac{6}{25}&\frac{12}{89}&\frac{1}{60}&\frac{5}{66}&\frac{8}{85}&\frac{3}{47}&\frac{3}{80}&\frac{7}{80}&0&0&0&\frac{3}{79}&0&\frac{4}{47}&\frac{2}{47}&0&0&0&\frac{4}{47}&0&0&0&0&0&0\\
+
+0&\frac{2}{33}&0&\frac{1}{33}&\frac{1}{33}&\frac{19}{97}&\frac{1}{26}&\frac{1}{14}&\frac{1}{39}&0&\frac{2}{39}&\frac{1}{66}&\frac{1}{5}&\frac{2}{33}&\frac{1}{33}&0&0&0&\frac{2}{33}&0&0&\frac{5}{78}&0&\frac{5}{78}&0\\
+
+\frac{8}{63}&\frac{3}{56}&0&0&\frac{2}{75}&\frac{3}{52}&\frac{8}{55}&\frac{17}{83}&\frac{1}{26}&0&\frac{1}{13}&0&\frac{1}{13}&0&0&0&0&0&0&0&0&\frac{5}{52}&0&\frac{5}{52}&0\\
+
+\frac{5}{73}&\frac{1}{35}&0&0&\frac{1}{70}&\frac{2}{81}&\frac{1}{21}&\frac{21}{52}&0&\frac{1}{30}&\frac{3}{44}&0&\frac{2}{61}&0&0&0&0&0&\frac{3}{86}&0&0&\frac{6}{73}&\frac{3}{44}&\frac{3}{74}&\frac{2}{39}\\
+
+0&0&0&0&0&\frac{7}{78}&\frac{7}{78}&0&\frac{2}{15}&0&\frac{19}{71}&0&\frac{3}{25}&0&0&0&0&0&0&0&0&\frac{3}{20}&0&\frac{3}{20}&0\\
+
+0&0&0&0&0&0&0&\frac{1}{2}&0&\frac{1}{7}&0&0&0&0&0&0&0&0&0&0&0&\frac{10}{57}&0&\frac{10}{57}&0\\
+
+0&0&0&0&0&\frac{2}{47}&\frac{2}{47}&\frac{9}{55}&\frac{5}{79}&0&\frac{11}{50}&0&\frac{3}{53}&0&0&0&0&0&\frac{1}{21}&0&0&\frac{11}{86}&\frac{3}{32}&\frac{7}{99}&\frac{4}{57}\\
+
+\frac{1}{5}&\frac{7}{55}&\frac{1}{40}&\frac{5}{44}&\frac{4}{63}&\frac{2}{21}&0&0&0&0&0&\frac{5}{88}&0&\frac{7}{55}&\frac{4}{63}&0&0&0&\frac{7}{55}&0&0&0&0&0&0\\
+
+0&0&0&0&0&\frac{19}{84}&\frac{3}{52}&\frac{3}{28}&\frac{1}{26}&0&\frac{1}{13}&0&\frac{19}{63}&0&0&0&0&0&0&0&0&\frac{5}{52}&0&\frac{5}{52}&0\\
+
+\frac{4}{27}&\frac{14}{99}&0&\frac{7}{99}&\frac{7}{99}&\frac{7}{55}&0&0&0&0&0&\frac{3}{85}&0&\frac{14}{65}&\frac{7}{99}&0&0&0&\frac{14}{99}&0&0&0&0&0&0\\
+
+\frac{1}{9}&\frac{13}{66}&0&\frac{7}{99}&\frac{7}{99}&\frac{7}{55}&0&0&0&0&0&\frac{3}{85}&0&\frac{14}{99}&\frac{6}{61}&\frac{1}{36}&0&0&\frac{14}{99}&0&0&0&0&0&0\\
+
+\frac{1}{2}&\frac{1}{4}&0&0&0&0&0&0&0&0&0&0&0&0&\frac{1}{8}&\frac{1}{8}&0&0&0&0&0&0&0&0&0\\
+
+0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&\frac{1}{2}&\frac{1}{2}&0&0&0&0&0&0&0\\
+
+0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&\frac{1}{2}&\frac{1}{2}&0&0&0&0&0&0&0\\
+
+0&\frac{2}{33}&0&\frac{1}{33}&\frac{1}{33}&\frac{1}{22}&0&\frac{5}{66}&0&0&\frac{1}{23}&\frac{1}{66}&0&\frac{2}{33}&\frac{1}{33}&0&0&0&\frac{23}{80}&\frac{2}{97}&\frac{2}{63}&\frac{1}{18}&\frac{1}{23}&\frac{1}{18}&\frac{5}{44}\\
+
+\frac{6}{25}&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&\frac{2}{35}&\frac{16}{77}&0&\frac{3}{20}&\frac{11}{50}&\frac{1}{8}&0\\
+
+0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&\frac{4}{9}&0&\frac{2}{9}&0&0&0&\frac{1}{3}\\
+
+\frac{6}{65}&0&0&0&0&\frac{1}{32}&\frac{1}{32}&\frac{3}{26}&\frac{1}{48}&\frac{1}{62}&\frac{3}{40}&0&\frac{1}{24}&0&0&0&0&0&\frac{2}{55}&\frac{1}{29}&0&\frac{23}{97}&\frac{7}{88}&\frac{11}{80}&\frac{1}{19}\\
+
+\frac{11}{87}&0&0&0&0&0&0&\frac{9}{55}&0&0&\frac{3}{32}&0&0&0&0&0&0&0&\frac{1}{21}&\frac{2}{23}&0&\frac{3}{22}&\frac{9}{43}&\frac{5}{76}&\frac{4}{57}\\
+
+0&0&0&0&0&\frac{2}{57}&\frac{2}{57}&\frac{2}{15}&\frac{1}{43}&\frac{1}{55}&\frac{5}{58}&0&\frac{3}{64}&0&0&0&0&0&\frac{7}{87}&\frac{1}{31}&0&\frac{7}{45}&\frac{1}{12}&\frac{13}{62}&\frac{5}{83}\\
+
+0&0&0&0&0&0&0&\frac{8}{63}&0&0&\frac{5}{69}&0&0&0&0&0&0&0&\frac{18}{95}&0&\frac{1}{18}&\frac{10}{53}&\frac{5}{69}&\frac{5}{51}&\frac{11}{56}\\
+
 \end{array}
 \right)
-\end{equation} 
+\end{equation*} 
 \caption{Weighted hyperlink matrix for Durham}
 \end{figure}  \label{DWH}
 \begin{figure} [H]  
